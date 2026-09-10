@@ -201,7 +201,8 @@ jobs:
         run: uv run python scripts/apply_gateway_config.py
         timeout-minutes: 5
 
-      - name: "Commit gateway-config.yml (triggers traffic-shift on future edits)"
+      - name: "Sync gateway-config.yml to repo"
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -212,7 +213,7 @@ jobs:
             echo "No changes to gateway-config.yml"
           else
             git commit -m "Update gateway-config.yml: canary split for $(cat gateway-config.yml | grep 'service:' | tail -1 | awk '{print $3}')"
-            git push
+            git push || echo "::warning::Could not push gateway-config.yml (branch protection). Run 'git pull' locally to sync."
           fi
 
       - name: Set up model monitor

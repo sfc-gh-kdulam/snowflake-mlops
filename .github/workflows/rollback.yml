@@ -68,7 +68,8 @@ jobs:
         run: uv run python scripts/apply_gateway_config.py
         timeout-minutes: 5
 
-      - name: Commit gateway-config.yml
+      - name: Sync gateway-config.yml to repo
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           MODEL_VERSION: ${{ inputs.model_version }}
@@ -80,7 +81,7 @@ jobs:
             echo "No changes to gateway-config.yml"
           else
             git commit -m "Rollback: gateway traffic to ${MODEL_VERSION}"
-            git push
+            git push || echo "::warning::Could not push gateway-config.yml (branch protection). Run 'git pull' locally to sync."
           fi
 
       - name: Run batch inference (validate rollback)
