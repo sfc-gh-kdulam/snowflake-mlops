@@ -11,8 +11,13 @@ Usage:
 """
 
 import argparse
+import importlib
 import os
 import sys
+from pathlib import Path
+
+# Ensure the repo root is on sys.path so "deploy.strategies.*" imports resolve
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 STRATEGIES = {
     "single-account": "deploy.strategies.single_account",
@@ -29,8 +34,6 @@ def get_strategy(topology: str):
         sys.exit(1)
 
     module_path = STRATEGIES[topology]
-    import importlib
-
     module = importlib.import_module(module_path)
     return module.promote
 
