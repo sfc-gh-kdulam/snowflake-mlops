@@ -16,20 +16,21 @@
 set -e
 
 # Check for unfilled template placeholders
-if grep -q '<your-github' "$0"; then
+PLACEHOLDER='<your-github'
+if sed -n '29,32p' "$0" | grep -q "$PLACEHOLDER"; then
   echo "ERROR: setup_cicd.sh contains unfilled placeholders."
-  echo "Edit the file and replace all <your-github-...> values before running."
+  echo "Edit the file and replace all placeholder values before running."
   exit 1
 fi
 
 # --- CONFIGURATION ---
 # Update these with your GitHub repo details.
-# GitHub enriches OIDC subjects with numeric IDs: owner@<owner_id>/repo@<repo_id>
+# GitHub enriches OIDC subjects with numeric IDs: owner@OWNER_ID/repo@REPO_ID
 # Find yours in the Actions error log on first run, or via GitHub API.
-GITHUB_OWNER="<your-github-username>"
-GITHUB_OWNER_ID="<your-github-owner-id>"
+GITHUB_OWNER="sfc-gh-kdulam"
+GITHUB_OWNER_ID="270725542"
 GITHUB_REPO="snowflake-mlops"
-GITHUB_REPO_ID="<your-github-repo-id>"
+GITHUB_REPO_ID="1371805971"
 
 SUBJECT="repo:${GITHUB_OWNER}@${GITHUB_OWNER_ID}/${GITHUB_REPO}@${GITHUB_REPO_ID}:ref:refs/heads/main"
 STAGE_SUBJECT="repo:${GITHUB_OWNER}@${GITHUB_OWNER_ID}/${GITHUB_REPO}@${GITHUB_REPO_ID}:environment:STAGE"
@@ -45,15 +46,13 @@ echo "  PROD subject: ${PROD_SUBJECT}"
 echo ""
 
 snow sql -q "
+USE ROLE ACCOUNTADMIN;
+USE DATABASE SNOW_MLOPS_DEV;
+
 -- =============================================================================
 -- Step 1: Network Policy for GitHub Actions
 -- Uses Snowflake's managed network rule that auto-tracks GitHub runner IPs.
 -- =============================================================================
-CREATE NETWORK RULE IF NOT EXISTS GITHUB_ACTIONS_NETWORK_RULE
-    MODE = INGRESS
-    TYPE = HOST_PORT
-    VALUE_LIST = ('github.com');
-
 CREATE NETWORK POLICY IF NOT EXISTS GITHUB_ACTIONS_POLICY
     ALLOWED_NETWORK_RULE_LIST = ('SNOWFLAKE.NETWORK_SECURITY.GITHUBACTIONS_GLOBAL')
     COMMENT = 'Allow GitHub Actions runners via managed network rule';

@@ -436,6 +436,8 @@ def deploy_dag(env: str):
 
     session = create_snowpark_session()
     session.sql(f"USE WAREHOUSE {wh}").collect()
+    session.sql(f"USE DATABASE {db}").collect()
+    session.sql(f"USE SCHEMA {db}.{schema}").collect()
 
     print(f"Deploying DAG: {db}.{schema}.{DAG_NAME}")
     print(f"  Feature eng: {fe_compute} | Training: {train_compute} | Evaluation: {eval_compute}")
@@ -556,6 +558,7 @@ def show_status(env: str):
 
     session = create_snowpark_session()
     session.sql(f"USE WAREHOUSE {wh}").collect()
+    session.sql(f"USE DATABASE {db}").collect()
 
     print(f"Task history for {db} (last 24h):\n")
     rows = session.sql(f"""

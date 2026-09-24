@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "llvmlite>=0.48.0",
+    "snowflake-core>=1.13.0",
     "snowflake-ml-python>=1.47.0",
 ]
 
