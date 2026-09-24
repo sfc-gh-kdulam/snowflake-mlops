@@ -1,7 +1,7 @@
 """Notify: create GitHub issue when a retrained model candidate is ready for review.
 
 Called after scheduled retraining completes (STAGE_ONLY mode).
-Creates a GitHub issue with metrics so a human can review and approve promotion.
+Creates a GitHub issue with metrics so a human can review and approve promotion. -- Updated --
 
 Requires: GH_TOKEN environment variable (GitHub Actions provides this automatically).
 """
